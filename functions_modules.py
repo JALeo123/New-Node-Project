@@ -11,7 +11,7 @@ from keras.regularizers import l2
 from keras.layers.merge import add
 from keras.losses import categorical_crossentropy
 from keras.models import model_from_json
-from keras_transformer import get_model, decode, get_custom_objects
+#from keras_transformer import get_model, decode, get_custom_objects
 import numpy as np
 import os
 import sys

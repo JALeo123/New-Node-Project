@@ -11,14 +11,16 @@ import re
 import sys
 from sklearn.decomposition import PCA
 
-
-def load_CCAT50_data_transformer(num_classes, del_classes_training, del_classes_testing, removeClasses):
+def load_transformer_data(num_classes, del_classes_training, del_classes_testing, removeClasses, dataset):
     input_shape = 1,1
-    path = "./text_data/CCAT-50_Train-All Data.csv"
-    data = pd.read_csv(path, usecols=["text", "author"], delimiter=',')
+    if (dataset == "CCAT-50"):
+        path = "./text_data/CCAT-50_Train-All Data.csv"
+    elif (dataset == "Amazon"):
+        path = "./text_data/AmazonReviews100.csv"
+    data = pd.read_csv(path, usecols=["text", "label"], delimiter=',')
 
     x_train = data["text"].fillna(' ').values.tolist()
-    y_train = data["author"].fillna(' ').values.tolist()
+    y_train = data["label"].fillna(' ').values.tolist()
     x_train = np.array(x_train + x_train)
     y_train = np.array(y_train + y_train)
 
@@ -60,7 +62,7 @@ def load_CCAT50_data_transformer(num_classes, del_classes_training, del_classes_
         y_knownUnknown = []
         vals = list(set(y_trainNew))
 
-        length = list(y_trainNew).count(vals[-1]) / 2
+        length = list(y_trainNew).count(vals[-1]) / 1
         for i in vals:
             j = 0;
             temp = 0;
@@ -75,6 +77,7 @@ def load_CCAT50_data_transformer(num_classes, del_classes_training, del_classes_
 
     #Data Tokenization
     x_TrainTokens, y_TrainTokens, x_TestTokens, y_TestTokens, x_knownUnknownT, y_knownUnknownT = [],[],[],[],[],[]
+    x_All, y_All = [], []
     for i in x_trainNew:
         x_TrainTokens.append(text_as_tokens(str(i)))
     for i in y_trainNew:
@@ -87,8 +90,12 @@ def load_CCAT50_data_transformer(num_classes, del_classes_training, del_classes_
         x_knownUnknownT.append(text_as_tokens(str(i)))
     for i in y_knownUnknown:
         y_knownUnknownT.append(text_as_tokens(str(i)))
+    for i in x_test:
+        x_All.append(text_as_tokens(str(i)))
+    for i in y_test:
+        y_All.append(text_as_tokens(str(i)))
 
-    return x_TrainTokens, x_TestTokens, y_TrainTokens, y_TestTokens, x_knownUnknownT, y_knownUnknownT, input_shape
+    return x_TrainTokens, x_TestTokens, y_TrainTokens, y_TestTokens, x_knownUnknownT, y_knownUnknownT, x_All, y_All, input_shape
 
 def transformerEncoderStep(source_tokens, target_tokens):
     source_token_dict = build_token_dict(source_tokens)
@@ -116,13 +123,16 @@ def transformerEncoderStep(source_tokens, target_tokens):
 
     return encode_input, decode_input, decode_output, source_token_dict, target_token_dict
 
-def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, removeClasses):
-    img_rows, img_cols = 100,100
-    path = "./text_data/CCAT-50_Train-All Data.csv"
-    data = pd.read_csv(path, usecols=["text", "author"], delimiter=',')
+def load_Normal_data(num_classes, del_classes_training, del_classes_testing, removeClasses, dataset):
+    img_rows, img_cols = 30,300
+    if(dataset == "CCAT-50"):
+        path = "./text_data/CCAT-50_Train-All Data.csv"
+    elif(dataset == "Amazon"):
+        path = "./text_data/AmazonReviews100.csv"
+    data = pd.read_csv(path, usecols=["text", "label"], delimiter=',')
 
     x_train = data["text"].fillna(' ').values.tolist()
-    y_train = data["author"].fillna(' ').values.tolist()
+    y_train = data["label"].fillna(' ').values.tolist()
     x_train = np.array(x_train + x_train)
     y_train = np.array(y_train + y_train)
 
@@ -180,6 +190,7 @@ def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, rem
     else:
         wordModel = Word2Vec.load("./generated_models/ccat50_word2vec.model")
 
+    print("Finished Loading Word Vectors")
     #Generating Final Word Embedding Data
     x_trainNewEmbed = []
     removedWords = []
@@ -220,16 +231,8 @@ def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, rem
         y.clear()
     x_testNew = x_testNewEmbed
 
-    pca = PCA(n_components=maxLen)
-    temp = []
-    temp2 = []
-    for i in x_trainNew:
-        temp.append(pca.fit_transform(i))
-    for i in x_testNew:
-        temp2.append(pca.fit_transform(i))
-
-    x_trainNew = np.array(temp)
-    x_testNew = np.array(temp2)
+    x_trainNew = np.array(x_trainNew)
+    x_testNew = np.array(x_testNew)
     x_trainNew = x_trainNew.astype('float32')
     x_testNew = x_testNew.astype('float32')
 
@@ -243,7 +246,7 @@ def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, rem
         x_trainNew = x_trainNew.reshape(len(x_trainNew), img_rows, img_cols, 1)
         x_testNew = x_testNew.reshape(len(x_testNew), img_rows, img_cols, 1)
         input_shape = (img_rows, img_cols, 1)
-
+    '''
     #validation Data
     x_validate = []
     y_validate = []
@@ -260,7 +263,7 @@ def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, rem
             j += 1
     x_validate = np.array(x_validate)
     y_validate = np.array(y_validate)
-
+    '''
     #Known Unknown Data
     x_knownUnknown = []
     y_knownUnknown = []
@@ -278,7 +281,7 @@ def load_CCAT50_data(num_classes, del_classes_training, del_classes_testing, rem
     x_knownUnknown = np.array(x_knownUnknown)
     y_knownUnknown = np.array(y_knownUnknown)
 
-    return x_trainNew, x_testNew, y_trainNew, y_testNew, x_validate, y_validate, x_knownUnknown, y_knownUnknown, input_shape
+    return x_trainNew, x_testNew, y_trainNew, y_testNew, x_knownUnknown, y_knownUnknown, input_shape
 
 def load_MNIST_data(num_classes, del_classes_training, del_classes_testing, removeClasses):
     # input image dimensions

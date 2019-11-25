@@ -29,8 +29,6 @@ DROPOUT = 0.1
 TOP_K = 5
 BEAM_TEMP = 0.1
 
-
-
 def get_custom_objects():
     return {
         'LayerNormalization': LayerNormalization,

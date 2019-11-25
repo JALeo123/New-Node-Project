@@ -1,0 +1,20 @@
+Adding Class: 5
+Training Accuracy Original: 0.833333
+Training Accuracy New: 0.833333
+Training Accuracy Retrained: 0.930000
+Adding Class: 6
+Training Accuracy Original: 0.797143
+Training Accuracy New: 0.797143
+Training Accuracy Retrained: 0.931429
+Adding Class: 7
+Training Accuracy Original: 0.815000
+Training Accuracy New: 0.815000
+Training Accuracy Retrained: 0.802500
+Adding Class: 8
+Training Accuracy Original: 0.713333
+Training Accuracy New: 0.713333
+Training Accuracy Retrained: 0.866667
+Adding Class: 9
+Training Accuracy Original: 0.780000
+Training Accuracy New: 0.779000
+Training Accuracy Retrained: 0.842000
